@@ -1,98 +1,131 @@
-import React, { useState, useEffect } from 'react'
-import { Col, Form, Row, Button } from 'react-bootstrap'
+import { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { FaUser } from 'react-icons/fa'
+import { register, reset } from '../features/auth/authSlice'
+import Spinner from '../components/Spinner'
 
-const Register = () => {
-	const [data, setData] = useState({
-		firstName: '',
-		lastName: '',
-		email: '',
-		password: '',
-		password2: '',
-	})
+function Register() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    password2: '',
+  })
 
-	const { firstName, lastName, email, password, password2 } = data
+  const { name, email, password, password2 } = formData
 
-	const onChange = (e) => {
-		setData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
-	}
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
 
-	const onSubmit = (e) => {
-		e.preventDefault()
+  const { user, isLoading, isError, isSuccess, message } = useSelector(
+    (state) => state.auth
+  )
 
-		console.log(data)
-	}
+  useEffect(() => {
+    if (isError) {
+      toast.error(message)
+    }
 
-	return (
-		<Row className="justify-content-center mt-5">
-			<Col xs={12} sm={12} md={5}>
-				<h3 className="d-flex align-items-center justify-content-center">
-					<FaUser className="me-2" />
-					Register
-				</h3>
-				<p className="text-center">Please create an account!</p>
+    if (isSuccess || user) {
+      navigate('/')
+    }
 
-				<Form onSubmit={onSubmit}>
-					<Form.Group className="mb-3">
-						<Form.Label>First Name</Form.Label>
-						<Form.Control
-							type="text"
-							placeholder="Enter first name"
-							name="firstName"
-							value={firstName}
-							onChange={onChange}
-						/>
-					</Form.Group>
-					<Form.Group className="mb-3">
-						<Form.Label>Last name</Form.Label>
-						<Form.Control
-							type="text"
-							placeholder="Enter last name"
-							name="lastName"
-							value={lastName}
-							onChange={onChange}
-						/>
-					</Form.Group>
+    dispatch(reset())
+  }, [user, isError, isSuccess, message, navigate, dispatch])
 
-					<Form.Group className="mb-3">
-						<Form.Label>Email address</Form.Label>
-						<Form.Control
-							type="email"
-							placeholder="Enter email"
-							name="email"
-							value={email}
-							onChange={onChange}
-						/>
-					</Form.Group>
+  const onChange = (e) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }))
+  }
 
-					<Form.Group className="mb-3" controlId="formBasicPassword">
-						<Form.Label>Password</Form.Label>
-						<Form.Control
-							type="password"
-							placeholder="Password"
-							name="password"
-							value={password}
-							onChange={onChange}
-						/>
-					</Form.Group>
-					<Form.Group className="mb-3">
-						<Form.Label>Confirm password</Form.Label>
-						<Form.Control
-							type="password"
-							placeholder="Confirm password"
-							name="password2"
-							value={password2}
-							onChange={onChange}
-						/>
-					</Form.Group>
+  const onSubmit = (e) => {
+    e.preventDefault()
 
-					<Button variant="dark" type="submit" className="col-12">
-						Submit
-					</Button>
-				</Form>
-			</Col>
-		</Row>
-	)
+    if (password !== password2) {
+      toast.error('Passwords do not match')
+    } else {
+      const userData = {
+        name,
+        email,
+        password,
+      }
+
+      dispatch(register(userData))
+    }
+  }
+
+  if (isLoading) {
+    return <Spinner />
+  }
+
+  return (
+    <>
+      <section className='heading'>
+        <h1>
+          <FaUser /> Register
+        </h1>
+        <p>Please create an account</p>
+      </section>
+
+      <section className='form'>
+        <form onSubmit={onSubmit}>
+          <div className='form-group'>
+            <input
+              type='text'
+              className='form-control'
+              id='name'
+              name='name'
+              value={name}
+              placeholder='Enter your name'
+              onChange={onChange}
+            />
+          </div>
+          <div className='form-group'>
+            <input
+              type='email'
+              className='form-control'
+              id='email'
+              name='email'
+              value={email}
+              placeholder='Enter your email'
+              onChange={onChange}
+            />
+          </div>
+          <div className='form-group'>
+            <input
+              type='password'
+              className='form-control'
+              id='password'
+              name='password'
+              value={password}
+              placeholder='Enter password'
+              onChange={onChange}
+            />
+          </div>
+          <div className='form-group'>
+            <input
+              type='password'
+              className='form-control'
+              id='password2'
+              name='password2'
+              value={password2}
+              placeholder='Confirm password'
+              onChange={onChange}
+            />
+          </div>
+          <div className='form-group'>
+            <button type='submit' className='btn btn-block'>
+              Submit
+            </button>
+          </div>
+        </form>
+      </section>
+    </>
+  )
 }
 
 export default Register

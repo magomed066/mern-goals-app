@@ -1,64 +1,103 @@
-import React, { useState, useEffect } from 'react'
-import { Col, Form, Row, Button } from 'react-bootstrap'
-import { FaUser, FaSignInAlt } from 'react-icons/fa'
+import { useState, useEffect } from 'react'
+import { FaSignInAlt } from 'react-icons/fa'
+import { useSelector, useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { login, reset } from '../features/auth/authSlice'
+import Spinner from '../components/Spinner'
 
-const Login = () => {
-	const [data, setData] = useState({
-		email: '',
-		password: '',
-	})
+function Login() {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  })
 
-	const { email, password } = data
+  const { email, password } = formData
 
-	const onChange = (e) => {
-		setData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
-	}
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
 
-	const onSubmit = (e) => {
-		e.preventDefault()
+  const { user, isLoading, isError, isSuccess, message } = useSelector(
+    (state) => state.auth
+  )
 
-		console.log(data)
-	}
+  useEffect(() => {
+    if (isError) {
+      toast.error(message)
+    }
 
-	return (
-		<Row className="justify-content-center mt-5">
-			<Col xs={12} sm={12} md={5}>
-				<h3 className="d-flex align-items-center justify-content-center">
-					<FaSignInAlt className="me-2" />
-					Login
-				</h3>
-				<p className="text-center">Login and start setting goals!</p>
+    if (isSuccess || user) {
+      navigate('/')
+    }
 
-				<Form onSubmit={onSubmit}>
-					<Form.Group className="mb-3">
-						<Form.Label>Email address</Form.Label>
-						<Form.Control
-							type="email"
-							placeholder="Enter email"
-							name="email"
-							value={email}
-							onChange={onChange}
-						/>
-					</Form.Group>
+    dispatch(reset())
+  }, [user, isError, isSuccess, message, navigate, dispatch])
 
-					<Form.Group className="mb-3" controlId="formBasicPassword">
-						<Form.Label>Password</Form.Label>
-						<Form.Control
-							type="password"
-							placeholder="Password"
-							name="password"
-							value={password}
-							onChange={onChange}
-						/>
-					</Form.Group>
+  const onChange = (e) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }))
+  }
 
-					<Button variant="dark" type="submit" className="col-12">
-						Submit
-					</Button>
-				</Form>
-			</Col>
-		</Row>
-	)
+  const onSubmit = (e) => {
+    e.preventDefault()
+
+    const userData = {
+      email,
+      password,
+    }
+
+    dispatch(login(userData))
+  }
+
+  if (isLoading) {
+    return <Spinner />
+  }
+
+  return (
+    <>
+      <section className='heading'>
+        <h1>
+          <FaSignInAlt /> Login
+        </h1>
+        <p>Login and start setting goals</p>
+      </section>
+
+      <section className='form'>
+        <form onSubmit={onSubmit}>
+          <div className='form-group'>
+            <input
+              type='email'
+              className='form-control'
+              id='email'
+              name='email'
+              value={email}
+              placeholder='Enter your email'
+              onChange={onChange}
+            />
+          </div>
+          <div className='form-group'>
+            <input
+              type='password'
+              className='form-control'
+              id='password'
+              name='password'
+              value={password}
+              placeholder='Enter password'
+              onChange={onChange}
+            />
+          </div>
+
+          <div className='form-group'>
+            <button type='submit' className='btn btn-block'>
+              Submit
+            </button>
+          </div>
+        </form>
+      </section>
+    </>
+  )
 }
 
 export default Login
