@@ -1,0 +1,31 @@
+{
+	"name": "goals-app",
+	"version": "1.0.0",
+	"description": "Goals setter app",
+	"main": "server.js",
+	"scripts": {
+		"start": "node backend/server.js",
+		"server": "nodemon backend/server.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/magomed066/mern-goals-app.git"
+	},
+	"keywords": [
+		"MERN",
+		"Redux/toolkit",
+		"React",
+		"JavaScript"
+	],
+	"author": "Magomed Mamergov",
+	"license": "ISC",
+	"dependencies": {
+		"colors": "^1.4.0",
+		"dotenv": "^16.0.0",
+		"epxress": "^0.0.1-security",
+		"mongoose": "^6.2.3"
+	},
+	"devDependencies": {
+		"nodemon": "^2.0.15"
+	}
+}
